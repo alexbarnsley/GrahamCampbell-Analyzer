@@ -17,6 +17,7 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
+use PhpParser\PhpVersion;
 
 /**
  * This is the reference analyzer class.
@@ -41,7 +42,7 @@ final class ReferenceAnalyzer
      */
     public function __construct(Parser $parser = null)
     {
-        $this->parser = $parser ?: (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+        $this->parser = $parser ?: (new ParserFactory())->createForNewestSupportedVersion();
     }
 
     /**
@@ -59,14 +60,12 @@ final class ReferenceAnalyzer
 
         $traverser->addVisitor(new NameResolver());
         $traverser->addVisitor($imports = new ImportVisitor());
-        $traverser->addVisitor($names = new NameVisitor());
         $traverser->addVisitor($docs = DocVisitor::create($contents));
 
         $traverser->traverse($this->parser->parse($contents));
 
         return array_values(array_unique(array_merge(
             $imports->getImports(),
-            $names->getNames(),
             DocProcessor::process($docs->getDoc())
         )));
     }

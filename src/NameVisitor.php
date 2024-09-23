@@ -55,7 +55,7 @@ final class NameVisitor extends NodeVisitorAbstract
     public function enterNode(Node $node): Node
     {
         if ($node instanceof ConstFetch || $node instanceof FuncCall) {
-            $node->name = null;
+            return $node;
         }
 
         if ($node instanceof FullyQualified) {
